@@ -1,0 +1,29 @@
+name: Deploy Application 1 to Port 2000
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy via SSH to Web1
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Starting deployment to /var/www/web1.com/public_html"
+            # Salin semua file dari GitHub ke server OCI
+            sudo rm -rf /var/www/web1.com/public_html/*
+            sudo cp -r ./* /var/www/web1.com/public_html/
+            # Perbaiki kepemilikan
+            sudo chown -R www-data:www-data /var/www/web1.com/public_html
+            echo "Deployment to Port 2000 complete."
