@@ -21,9 +21,17 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "Starting deployment to /var/www/web1.com/public_html"
-            # Salin semua file dari GitHub ke server OCI
+            
+            # 1. Hapus isi folder (sebagai user ubuntu)
             sudo rm -rf /var/www/web1.com/public_html/*
-            sudo cp -r ./* /var/www/web1.com/public_html/
-            # Perbaiki kepemilikan
-            sudo chown -R www-data:www-data /var/www/web1.com/public_html
+            
+            # 2. Salin SEMUA file dari GitHub Actions ke folder web
+            # Perintah cp ini bekerja lebih baik saat digabungkan 
+            # (Perintah yang dieksekusi oleh appleboy/ssh-action)
+            sudo cp -r /home/runner/work/app1/app1/* /var/www/web1.com/public_html/ 
+            
+            # 3. KOREKSI: Setel kepemilikan REKURSIF ke folder induk
+            # Perintah chown ini seharusnya menyelesaikan 403 Forbidden
+            sudo chown -R www-data:www-data /var/www/web1.com
+            
             echo "Deployment to Port 2000 complete."
